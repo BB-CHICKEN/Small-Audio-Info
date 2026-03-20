@@ -12,6 +12,8 @@
 📦 轻量无缓存：每次切歌都会请求最新数据，确保信息准确（无需担心缓存过期）。
 
 ## 安装方法
-1 下载插件zip
-2 进入插件设置内安装
-3 重启 MoeKoe Music
+1.下载插件[releases](https://github.com/BB-CHICKEN/Small-Audio-Info/releases)
+
+2.进入插件设置内安装
+
+3.重启 MoeKoe Music
