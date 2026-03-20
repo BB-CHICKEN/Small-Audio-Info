@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "MoeKoe Music 音乐信息显示插件",
+  "plugin_id":"Small-Audio-Info",
+  "moekoe": true,
+  "version": "1.0.0",
+  "description": "在播放器右侧显示当前歌曲的格式和文件大小",
+  "author": {
+    "name": "BB-Ji",
+    "url": "https://github.com/BB-CHICKEN"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "音乐信息显示插件"
+  },
+  "icons": {
+    "256": "icons.jpg"
+  }
+}
