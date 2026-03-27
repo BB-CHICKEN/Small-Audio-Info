@@ -8,11 +8,18 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// ======================== 通过 hash 获取文件信息（无缓存） ========================
-async function fetchAudioInfoByHash(hash) {
-  if (!hash) return null;
+// ======================== 通过歌曲对象获取文件信息 ========================
+async function fetchAudioInfoFromSong(song) {
+  if (!song || !song.playHash) {
+    return null;
+  }
 
-  const url = `http://127.0.0.1:6521/song/url?hash=${hash}&quality=high`;
+  // 构建 URL，添加 quality 参数（如果存在）
+  let url = `http://127.0.0.1:6521/song/url?hash=${song.playHash}`;
+  if (song.resolvedQuality) {
+    url += `&quality=${song.resolvedQuality}`;
+  }
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
@@ -45,9 +52,9 @@ function getCurrentSong() {
   }
 }
 
-function getCurrentHash() {
+function getCurrentPlayHash() {
   const song = getCurrentSong();
-  return song.hash || null;
+  return song.playHash || null;
 }
 
 // ======================== 显示逻辑 ========================
@@ -57,7 +64,7 @@ let currentHash = null;
 async function updateDisplay() {
   if (!infoDisplay) return;
 
-  const newHash = getCurrentHash();
+  const newHash = getCurrentPlayHash();
 
   // 只有 hash 变化时才更新
   if (newHash === currentHash) return;
@@ -71,7 +78,9 @@ async function updateDisplay() {
   // 显示加载中
   infoDisplay.innerHTML = `<div class="music-format">加载中...</div><div class="music-size"></div>`;
 
-  const info = await fetchAudioInfoByHash(currentHash);
+  const song = getCurrentSong();
+  const info = await fetchAudioInfoFromSong(song);
+
   if (info && info.size !== null) {
     const format = info.format.toUpperCase();
     const sizeText = formatBytes(info.size);
@@ -110,8 +119,9 @@ function init() {
     }
     container.appendChild(infoDisplay);
 
-    updateDisplay();          // 立即显示当前歌曲信息
-    setInterval(updateDisplay, 1000); // 1秒轮询，作为唯一的切歌检测
+    console.log('[音频信息插件] 已启动');
+    updateDisplay();
+    setInterval(updateDisplay, 1000);
   });
 
   observer.observe(document.body, { childList: true, subtree: true });
