@@ -15,9 +15,9 @@ async function fetchAudioInfoFromSong(song) {
   }
 
   // 构建 URL，添加 quality 参数（如果存在）
-  let url = `http://127.0.0.1:6521/song/url?hash=${song.playHash}&ppage_id=356753938`;
+  let url = `http://127.0.0.1:6521/song/url?hash=${song.playHash}`;
   if (song.resolvedQuality) {
-    url += `&quality=${song.resolvedQuality}`;
+    url += `&quality=${song.resolvedQuality}&ppage_id=356753938`;
   }
 
   try {
