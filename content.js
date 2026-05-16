@@ -8,17 +8,21 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// ======================== 通过歌曲对象获取文件信息 ========================
+// ======================== 通过歌曲对象获取音频信息（基于质量选项） ========================
 async function fetchAudioInfoFromSong(song) {
-  if (!song || !song.playHash) {
+  if (!song || !song.resolvedQuality || !Array.isArray(song.qualityOptions)) {
     return null;
   }
 
-  // 构建 URL，添加 quality 参数（如果存在）
-  let url = `http://127.0.0.1:6521/song/url?hash=${song.playHash}`;
-  if (song.resolvedQuality) {
-    url += `&quality=${song.resolvedQuality}&ppage_id=356753938`;
+  const selectedQuality = song.resolvedQuality;
+  const qualityItem = song.qualityOptions.find(item => item.value === selectedQuality);
+  if (!qualityItem || !qualityItem.hash) {
+    console.warn('未找到匹配的质量选项或 hash:', selectedQuality);
+    return null;
   }
+
+  const { hash, label } = qualityItem;
+  const url = `http://127.0.0.1:6521/audio?hash=${hash}`;
 
   try {
     const controller = new AbortController();
@@ -28,17 +32,27 @@ async function fetchAudioInfoFromSong(song) {
 
     if (response.ok) {
       const data = await response.json();
-      if (data && typeof data.fileSize === 'number' && data.extName) {
-        return {
-          size: data.fileSize,
-          format: data.extName
-        };
+      if (data && data.status === 1 && Array.isArray(data.data) && data.data.length > 0) {
+        const audioData = data.data[0];
+        const sizeField = `filesize_${selectedQuality}`;
+        const fileSize = audioData[sizeField];
+
+        if (fileSize !== undefined && fileSize !== null) {
+          const size = parseInt(fileSize, 10);
+          if (!isNaN(size)) {
+            return {
+              size: size,
+              format: label || selectedQuality.toUpperCase()
+            };
+          }
+        }
+        console.warn('未找到对应质量的文件大小字段:', sizeField, audioData);
       } else {
-        console.warn('接口返回数据缺少 fileSize 或 extName:', data);
+        console.warn('接口返回数据异常:', data);
       }
     }
   } catch (err) {
-    console.warn('获取音乐信息失败:', err);
+    console.warn('获取音频信息失败:', err);
   }
   return null;
 }
@@ -52,37 +66,51 @@ function getCurrentSong() {
   }
 }
 
-function getCurrentPlayHash() {
-  const song = getCurrentSong();
-  return song.playHash || null;
-}
-
 // ======================== 显示逻辑 ========================
 let infoDisplay = null;
-let currentHash = null;
+let currentDisplayHash = null;   // 当前显示的音频对应的 hash
 
 async function updateDisplay() {
   if (!infoDisplay) return;
 
-  const newHash = getCurrentPlayHash();
+  const song = getCurrentSong();
+  if (!song || !song.resolvedQuality || !Array.isArray(song.qualityOptions)) {
+    // 无效歌曲或缺少质量信息时清空显示
+    if (currentDisplayHash !== null) {
+      currentDisplayHash = null;
+      infoDisplay.innerHTML = `<div class="music-format">无音频</div><div class="music-size"></div>`;
+    }
+    return;
+  }
+
+  const selectedQuality = song.resolvedQuality;
+  const qualityItem = song.qualityOptions.find(item => item.value === selectedQuality);
+  const targetHash = qualityItem ? qualityItem.hash : null;
 
   // 只有 hash 变化时才更新
-  if (newHash === currentHash) return;
-  currentHash = newHash;
+  if (targetHash === currentDisplayHash) return;
+  currentDisplayHash = targetHash;
 
-  if (!currentHash) {
-    infoDisplay.innerHTML = `<div class="music-format">无音频</div><div class="music-size"></div>`;
+  if (!targetHash) {
+    infoDisplay.innerHTML = `<div class="music-format">未知</div><div class="music-size"></div>`;
     return;
   }
 
   // 显示加载中
   infoDisplay.innerHTML = `<div class="music-format">加载中...</div><div class="music-size"></div>`;
 
-  const song = getCurrentSong();
   const info = await fetchAudioInfoFromSong(song);
+  // 防止异步返回时 hash 已再次变化导致显示错乱
+  const currentSong = getCurrentSong();
+  const currentQualityItem = currentSong.qualityOptions?.find(item => item.value === currentSong.resolvedQuality);
+  const currentHash = currentQualityItem ? currentQualityItem.hash : null;
+  if (currentHash !== currentDisplayHash) {
+    // 已经切换到别的音频，放弃本次更新
+    return;
+  }
 
   if (info && info.size !== null) {
-    const format = info.format.toUpperCase();
+    const format = info.format;
     const sizeText = formatBytes(info.size);
     infoDisplay.innerHTML = `<div class="music-format">${format}</div><div class="music-size">${sizeText}</div>`;
   } else {
