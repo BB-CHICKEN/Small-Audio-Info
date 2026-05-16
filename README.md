@@ -5,7 +5,7 @@
 插件通过调用 MoeKoe Music 本地的 HTTP API 获取歌曲的 fileSize 和 extName，无需额外网络请求，速度极快。
 
 ## 功能特点
-🎵 自动获取：从 localStorage.current_song 读取当前歌曲的 hash，调用本地 API 获取文件信息。
+🎵 自动获取：从 localStorage 读取当前歌曲的 hash，调用本地 API 获取文件信息。
 
 📍 位置靠右：显示在播放器容器（.player-container）的右下角，不干扰主要控制按钮。
 
