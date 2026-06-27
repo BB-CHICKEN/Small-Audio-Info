@@ -1,15 +1,19 @@
-数据存在浏览器内 清除数据会丢失
-将来看看能不能存在一个更安全高效的存储方式
-## 效果
-<img width="1230" height="1020" alt="3652994b522248d3" src="https://github.com/user-attachments/assets/f3f94b01-c52c-4f1d-828c-91e04edeb79e" />
+## MoeKoe Music 音乐信息显示插件
+## 简介
+这是一个为 MoeKoe Music 桌面版（基于 Electron）开发的扩展插件。它能在播放器界面的右下角显示当前歌曲的音频格式（如 MP3、FLAC）和文件大小（自动转换为 B、KB、MB、GB），帮助用户快速了解当前播放的音乐文件信息。
 
-## 修改时长
-shift+ctrl+i键打开控制台 在上方选择Application/应用选项 左侧打开本地存储file中找到moekoe_playback_total 修改其中{"totalSeconds"**} 单位为秒
+插件通过调用 MoeKoe Music 本地的 HTTP API 获取歌曲的 fileSize 和 extName，无需额外网络请求，速度极快。
 
-## 食用方法
-1. 下载插件 [releases](https://github.com/BB-CHICKEN/MoeKoe-Music-Total-Play-Time/releases/latest)
-2. 进入插件设置内安装
-3. 重启 MoeKoe Music
+## 功能特点
+🎵 自动获取：从 localStorage 读取当前歌曲的 hash，调用本地 API 获取文件信息。
 
-## 免责说明
-本插件仅供交流学习使用，请勿用于商业用途，由使用者自行承担因使用本插件而产生的一切法律责任。
+📍 位置靠右：显示在播放器容器（.player-container）的右下角，不干扰主要控制按钮。
+
+📦 轻量无缓存：每次切歌都会请求最新数据，确保信息准确（无需担心缓存过期）。
+
+## 安装方法
+1.下载插件[releases](https://github.com/BB-CHICKEN/Small-Audio-Info/releases)
+
+2.进入插件设置内安装
+
+3.重启 MoeKoe Music
