@@ -1,25 +1,29 @@
 {
   "manifest_version": 3,
-  "name": "MoeKoe Music 音乐信息显示插件",
-  "plugin_id":"Small-Audio-Info",
-  "moekoe": true,
-  "version": "1.3.0",
-  "description": "在播放器右侧显示当前歌曲的格式和文件大小",
+  "name": "MoeKoe Music 累计听歌时长插件",
+  "plugin_id":"Total-Play-time",
+  "version": "2.1.0",
+  "moekoe ": "true",
+  "description": "MoeKoe Music 累计听歌时长插件",
   "author": {
     "name": "BB-Ji",
     "url": "https://github.com/BB-CHICKEN"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage"], 
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_end"
     }
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "音乐信息显示插件"
+    "default_title": "累计听歌时长插件"
   },
   "icons": {
     "256": "icons.jpg"
