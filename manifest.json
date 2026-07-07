@@ -3,8 +3,8 @@
   "name": "MoeKoe Music 音乐信息显示插件",
   "plugin_id":"Small-Audio-Info",
   "moekoe":true,
-  "version": "1.4.0",
   "minversion": "1.6.5",
+  "version": "1.5.0",
   "description": "在播放器右侧显示当前歌曲的文件大小和音频采样率",
   "author": {
     "name": "BB-Ji",
